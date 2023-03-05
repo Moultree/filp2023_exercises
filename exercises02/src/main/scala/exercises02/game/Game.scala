@@ -18,7 +18,7 @@ class Game(controller: GameController) {
     */
   def play(number: Int): Unit = {
     var guessed = false
-    var input = ""
+    var input   = ""
     while (!guessed) {
       controller.askNumber()
       input = controller.nextLine()
