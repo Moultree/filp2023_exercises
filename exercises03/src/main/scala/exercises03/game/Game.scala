@@ -1,14 +1,21 @@
 package exercises03.game
 
+import scala.math.Ordered.orderingToOrdered
 import scala.util.{Failure, Success, Try}
 object Game {
   def parseState(input: String, number: Int): State = {
-    Try(input.toInt) match {
-      case Failure(_) if input.equalsIgnoreCase(GameController.IGiveUp) => GiveUp
-      case Failure(_)                                                   => WrongInput
-      case Success(guess) if guess < number                             => NumberIsBigger
-      case Success(guess) if guess > number                             => NumberIsSmaller
-      case Success(guess) if guess == number                            => Guessed
+    input.toIntOption match {
+      case Some(i) =>
+        i match {
+          case a if a < number => NumberIsBigger
+          case a if a > number => NumberIsSmaller
+          case _               => Guessed
+        }
+      case None =>
+        input match {
+          case GameController.IGiveUp => GiveUp
+          case _                      => WrongInput
+        }
     }
   }
 
@@ -23,10 +30,6 @@ object Game {
   }
 
   def completed(state: State): Boolean = {
-    state match {
-      case GiveUp | Guessed => true
-      case WrongInput       => false
-      case _                => false
-    }
+    state == GiveUp || state == Guessed
   }
 }
