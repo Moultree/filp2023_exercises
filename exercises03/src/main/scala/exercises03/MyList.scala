@@ -14,7 +14,7 @@ object MyList {
     def innerSum(list: MyList[Int], acc: Int): Int = {
       list match {
         case Cons(head, tail) => innerSum(tail, acc + head)
-        case Nil => acc
+        case Nil              => acc
       }
     }
 
