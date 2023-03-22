@@ -11,23 +11,23 @@ class Calculator[T: Integral] {
     case Mul(left, right) =>
       (calculate(left), calculate(right)) match {
         case (Success(l), Success(r)) => Success(l * r)
-        case _ => DivisionByZero
+        case _                        => DivisionByZero
       }
     case Div(left, right) =>
       (calculate(left), calculate(right)) match {
         case (_, Success(r)) if isZero(r) => DivisionByZero
-        case (Success(l), Success(r)) => Success(l / r)
-        case _ => DivisionByZero
+        case (Success(l), Success(r))     => Success(l / r)
+        case _                            => DivisionByZero
       }
     case Plus(left, right) =>
       (calculate(left), calculate(right)) match {
         case (Success(l), Success(r)) => Success(l + r)
-        case _ => DivisionByZero
+        case _                        => DivisionByZero
       }
     case Minus(left, right) =>
       (calculate(left), calculate(right)) match {
         case (Success(l), Success(r)) => Success(l - r)
-        case _ => DivisionByZero
+        case _                        => DivisionByZero
       }
     case Val(v) => Success(v)
     case If(iff, cond, left, right) =>

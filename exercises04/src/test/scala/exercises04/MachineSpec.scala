@@ -1,6 +1,5 @@
 package exercises04
 
-import exercises04.Machine.Input.{Coin, Turn}
 import org.scalatest.wordspec.AnyWordSpec
 
 class MachineSpec extends AnyWordSpec {

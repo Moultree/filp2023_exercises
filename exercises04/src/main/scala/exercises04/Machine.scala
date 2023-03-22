@@ -1,7 +1,5 @@
 package exercises04
 
-import exercises04.Machine.Input.{Coin, Turn}
-
 case class Machine(locked: Boolean, candies: Int, coins: Int)
 
 /**
