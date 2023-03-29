@@ -17,7 +17,7 @@ object Combinators {
   // Напишите функцию, используя комбинаторы стандартной библиотеки,
   // которая проведёт полную реакцию
   def react(ipt: String): String = {
-    val q = mutable.Queue[Char](ipt: _*)
+    val q     = mutable.Queue[Char](ipt: _*)
     val stack = mutable.Stack[Char]()
 
     while (q.nonEmpty) {
