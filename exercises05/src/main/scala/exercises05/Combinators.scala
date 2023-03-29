@@ -28,7 +28,6 @@ object Combinators {
         stack.push(c)
       }
     }
-
     stack.reverse.mkString
   }
 }
