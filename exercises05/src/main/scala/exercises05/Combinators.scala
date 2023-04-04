@@ -1,5 +1,4 @@
 package exercises05
-import scala.collection.mutable
 
 object Combinators {
   // There is a chain of hefEgGeGFEgGgeHE
@@ -18,11 +17,11 @@ object Combinators {
   // to fully react the chain
   def react(ipt: String): String = {
     val reacted = ipt
-      .foldLeft(new StringBuilder()) {
-        case (sb, c) if sb.nonEmpty && sb.last != c && sb.last.toLower == c.toLower =>
-          sb.deleteCharAt(sb.length - 1)
-        case (sb, c) => sb.append(c)
+      .foldLeft(List.empty[Char]) {
+        case (acc, c) if acc.headOption.exists(_ != c) && acc.head.toLower == c.toLower =>
+          acc.tail
+        case (acc, c) => c :: acc
       }
-    reacted.mkString
+    reacted.reverse.mkString
   }
 }
