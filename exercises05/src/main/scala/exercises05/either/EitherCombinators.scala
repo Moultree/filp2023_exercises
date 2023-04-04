@@ -36,7 +36,14 @@ object EitherCombinators {
     }
 
     def traverse[E, A, B](list: List[A])(f: A => Either[E, B]): Either[E, List[B]] =
-      list.foldRight[Either[E, List[B]]](Right(Nil))((a, acc) => f(a).flatMap(b => acc.map(l => b :: l)))
+      list
+        .foldLeft[Either[E, List[B]]](Right(Nil))((acc, a) => {
+          for {
+            l <- acc
+            b <- f(a)
+          } yield b :: l
+        })
+        .map(_.reverse)
 
     def sequence[E, A](list: List[Either[E, A]]): Either[E, List[A]] = traverse(list)(identity)
   }

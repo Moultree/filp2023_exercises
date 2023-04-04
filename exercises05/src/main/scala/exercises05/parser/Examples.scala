@@ -29,13 +29,10 @@ object Examples {
     passport match {
       case None => Some(None)
       case Some(v1) =>
-        passReg.findFirstMatchIn(v1) match {
-          case None => None
-          case Some(v2) =>
-            (v2.group(1).toLongOption, v2.group(2).toLongOption) match {
-              case (_, None) | (None, _) => None
-              case (Some(s), Some(num))  => Some(Some(Passport(s, num)))
-            }
+        v1 match {
+          case passReg(series, number) =>
+            Some(Some(Passport(series.toLong, number.toLong)))
+          case _ => None
         }
     }
 

@@ -17,11 +17,12 @@ object Combinators {
   // Write a function that uses standard library combinators
   // to fully react the chain
   def react(ipt: String): String = {
-    val reacted = ipt.foldLeft(List[Char]()) {
-      case (head :: tail, c) if head != c && head.toLower == c.toLower => tail
-      case (acc, c)                                                    => c :: acc
-    }
-    if (reacted.length == ipt.length) reacted.reverse.mkString
-    else react(reacted.reverse.mkString)
+    val reacted = ipt
+      .foldLeft(new StringBuilder()) {
+        case (sb, c) if sb.nonEmpty && sb.last != c && sb.last.toLower == c.toLower =>
+          sb.deleteCharAt(sb.length - 1)
+        case (sb, c) => sb.append(c)
+      }
+    reacted.mkString
   }
 }
