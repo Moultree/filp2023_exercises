@@ -15,13 +15,17 @@ object Combinators {
   //
   // Write a function that uses standard library combinators
   // to fully react the chain
-  def react(ipt: String): String = {
-    val reacted = ipt
+  def react(input: String): String = {
+    input
       .foldLeft(List.empty[Char]) {
-        case (acc, c) if acc.headOption.exists(_ != c) && acc.head.toLower == c.toLower =>
-          acc.tail
-        case (acc, c) => c :: acc
+        case (head :: tail, c) if head != c && head.toLower == c.toLower =>
+          tail
+        case (acc, c) =>
+          c :: acc
+        case (Nil, c) =>
+          c :: Nil
       }
-    reacted.reverse.mkString
+      .reverse
+      .mkString
   }
 }
