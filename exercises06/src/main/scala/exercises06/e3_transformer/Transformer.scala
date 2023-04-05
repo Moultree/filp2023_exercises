@@ -12,18 +12,20 @@ object TransformerInstances {
   implicit val transformer: Transformer[RawUser, User] = new Transformer[RawUser, User] {
     override def toOption(a: RawUser): Option[User] = toEither(a).toOption
 
+    def fromOption[A, B](option: Option[B])(a: => A): Either[A, B] = {
+      option match {
+        case None    => Left[A, B](a)
+        case Some(b) => Right(b)
+      }
+    }
+
     override def toEither(a: RawUser): Either[Error, User] = {
-      val id =
-        try {
-          a.id.toLong
-        } catch {
-          case _: NumberFormatException => return Left(InvalidId)
-        }
 
       def nonEmptyString(s: Option[String], err: Error): Either[Error, String] =
         s.filter(_.nonEmpty).toRight(err)
 
       for {
+        id         <- fromOption(a.id.toLongOption)(Error.InvalidId)
         firstName  <- nonEmptyString(a.firstName, InvalidName)
         secondName <- nonEmptyString(a.secondName, InvalidName)
         thirdName  <- Right(a.thirdName.filter(_.nonEmpty))
