@@ -1,6 +1,6 @@
 package exercises05
 
-import exercises05.either.EitherCombinators._
+import either.EitherCombinators._
 import exercises05.parser.Error._
 import exercises05.parser.Examples._
 import exercises05.parser._
