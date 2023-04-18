@@ -31,7 +31,7 @@ object ReaderApp extends App {
       Transaction(currency, good.price * exchanges(good.currency, currency))
 
     private def aggregate(currency: Currency, transactions: NonEmptyList[Transaction])(
-      exchanges: Exchanges
+        exchanges: Exchanges
     ): Transaction =
       transactions.reduce { (acc, cur) =>
         acc.copy(price = acc.price + (cur.price * exchanges(cur.currency, currency)))
