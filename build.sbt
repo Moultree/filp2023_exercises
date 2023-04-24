@@ -1,7 +1,5 @@
 name := "exercises"
-
 version := "0.1"
-
 inThisBuild {
   List(
     scalaVersion := "2.13.10",
@@ -13,14 +11,11 @@ inThisBuild {
     )
   )
 }
-
 val libraries = Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.3"         % Test,
   "org.scalatestplus" %% "scalacheck-1-15" % "3.3.0.0-SNAP3" % Test
 )
-
 val kindProjectorDep = "org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full
-
 // Добавляем пакеты по мере прохождения курса
 lazy val exercises01 = project in file("exercises01") settings (libraryDependencies ++= libraries)
 lazy val exercises02 = project in file("exercises02") settings (libraryDependencies ++= libraries)
@@ -38,6 +33,18 @@ lazy val exercises07 = project in file("exercises07") settings {
   scalacOptions ++= Seq("-feature", "-language:implicitConversions")
   addCompilerPlugin(kindProjectorDep)
 }
+lazy val exercises08 = project in file("exercises08") settings {
+  libraryDependencies ++= libraries
+} settings {
+  scalacOptions ++= Seq("-feature", "-language:implicitConversions")
+  addCompilerPlugin(kindProjectorDep)
+}
+lazy val exercises09 = project in file("exercises09") settings (
+  libraryDependencies ++=
+    "org.typelevel" %% "cats-effect" % "3.4.0" +:
+      "org.typelevel" %% "cats-effect-testing-scalatest" % "1.5.0" % Test +:
+      libraries
+  )
 
 lazy val lection02 = project in file("lection02") settings (libraryDependencies ++= libraries)
 lazy val lection03 = project in file("lection03") settings (libraryDependencies ++= libraries)
@@ -48,3 +55,14 @@ lazy val lection07 = project in file("lection07") settings (libraryDependencies 
   scalacOptions ++= Seq("-feature", "-language:implicitConversions")
   addCompilerPlugin(kindProjectorDep)
 }
+lazy val lection08 = project in file("lection08") settings (libraryDependencies ++= libraries) settings {
+  scalacOptions ++= Seq("-feature", "-language:implicitConversions")
+  addCompilerPlugin(kindProjectorDep)
+}
+
+lazy val lection09 = project in file("lection09") settings (
+  libraryDependencies ++=
+    "org.typelevel" %% "cats-effect" % "3.4.0" +:
+      "org.typelevel" %% "cats-effect-testing-scalatest" % "1.5.0" % Test +:
+      libraries
+  )
