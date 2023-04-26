@@ -55,6 +55,7 @@ object WriterApp extends App {
     def aggregate(transactions: NonEmptyList[Transaction]): WithLogs[Transaction] = {
       val all = transactions.reduce(Semigroup[Transaction].combine)
       WithLogs.log(s"spent total ${all.price}").as(Transaction(all.price))
+
     }
 
     def buyAll(wallet: Wallet): WithLogs[Wallet] =
