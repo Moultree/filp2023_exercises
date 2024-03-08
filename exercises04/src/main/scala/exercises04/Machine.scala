@@ -1,5 +1,9 @@
 package exercises04
 
+import exercises04.Machine.Input.Turn
+
+import scala.annotation.tailrec
+
 case class Machine(locked: Boolean, candies: Int, coins: Int)
 
 /**
@@ -19,5 +23,18 @@ object Machine {
   }
 
   @scala.annotation.tailrec
-  def run(machine: Machine, inputs: List[Input]): (Machine, List[Input]) = ???
+  def run(machine: Machine, inputs: List[Input]): (Machine, List[Input]) = {
+    inputs match {
+      case Nil => (machine, inputs)
+      case input :: tail =>
+        (machine, input) match {
+          case (Machine(true, candies, coins), Input.Coin) =>
+            run(Machine(locked = false, candies, coins + 1), tail)
+          case (Machine(false, candies, coins), Input.Turn) if candies >= 1 =>
+            run(Machine(locked = true, candies - 1, coins), tail)
+          case (Machine(_, 0, _), _) => (machine, inputs)
+          case _                     => run(machine, tail)
+        }
+    }
+  }
 }
