@@ -4,21 +4,112 @@ import exercises07.data.NonEmptyList
 import exercises07.typeclasses._
 
 object Exercise01 {
-  object Syntax {}
+  object Syntax {
+    implicit class PureOps[A](private val a: A) extends AnyVal {
+      def pure[F[_]: Applicative]: F[A] = Applicative[F].pure(a)
+    }
+    implicit class SemigroupOps[A](private val a: A) extends AnyVal {
+      def |+|(b: A)(implicit semigroup: Semigroup[A]): A = semigroup.combine(a, b)
+    }
+    implicit class ApplicativeOps[F[_], A](private val fa: F[A]) extends AnyVal {
+      def aproduct[B](fb: F[B])(implicit applicative: Applicative[F]): F[(A, B)] =
+        applicative.product(fa, fb)
+
+      def ap[B](ff: F[A => B])(implicit ap: Applicative[F]): F[B] = Applicative[F].ap(ff)(fa)
+    }
+    implicit class FunctorOps[F[_], A](private val fa: F[A]) extends AnyVal {
+      def map[B](f: A => B)(implicit functor: Functor[F]): F[B] =
+        functor.map(fa)(f)
+    }
+    implicit class TraverseOps[F[_], A](private val fa: F[A]) extends AnyVal {
+      def traverse[G[_]: Applicative, B](f: A => G[B])(implicit traverse: Traverse[F]): G[F[B]] =
+        traverse.traverse(fa)(f)
+    }
+    implicit class FoldOps[F[_], A](private val fa: F[A]) extends AnyVal {
+      def foldLeft[B](b: B)(f: (B, A) => B)(implicit foldable: Foldable[F]): B = foldable.foldLeft(fa, b)(f)
+      def combineAll(implicit foldable: Foldable[F], m: Monoid[A])             = foldLeft(m.empty)(m.combine)
+    }
+  }
 
   object Instances {
     import Syntax._
 
-    implicit val strMonoid = ???
+    implicit val strMonoid = new Monoid[String] {
+      override def empty: String = ""
 
-    implicit val intMonoid = ???
+      override def combine(x: String, y: String): String = x + y
+    }
 
-    implicit val listInstances: Traverse[List] with Applicative[List] = ???
+    implicit val intMonoid = new Monoid[Int] {
+      override def empty: Int = 0
 
-    implicit val optionInstances: Traverse[Option] with Applicative[Option] = ???
+      override def combine(x: Int, y: Int): Int = x + y
+    }
 
-    implicit val nelInstances: Traverse[NonEmptyList] with Applicative[NonEmptyList] = ???
+    implicit val listInstances: Traverse[List] with Applicative[List] = new Traverse[List] with Applicative[List] {
+      override def traverse[G[_]: Applicative, A, B](fa: List[A])(f: A => G[B]): G[List[B]] = {
+        fa.foldLeft(List.empty[B].pure[G])((accF, next) =>
+          accF.aproduct(f(next)).map { case (acc, next) => acc.appended(next) }
+        )
+      }
 
-    implicit def listMonoid[A] = ???
+      override def foldLeft[A, B](fa: List[A], b: B)(f: (B, A) => B): B = {
+        fa.foldLeft(b)((accF, next) => f(accF, next))
+      }
+
+      override def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
+
+      override def ap[A, B](ff: List[A => B])(fa: List[A]): List[B] =
+        ff.zip(fa).map { case (func, value) => func(value) }
+
+      override def pure[A](x: A): List[A] = List[A](x)
+    }
+
+    implicit val optionInstances: Traverse[Option] with Applicative[Option] =
+      new Traverse[Option] with Applicative[Option] {
+        override def traverse[G[_]: Applicative, A, B](fa: Option[A])(f: A => G[B]): G[Option[B]] = fa match {
+          case Some(value) => f(value).map(Some(_))
+          case None        => Option.empty[B].pure[G]
+        }
+
+        override def ap[A, B](ff: Option[A => B])(fa: Option[A]): Option[B] =
+          fa.zip(ff).map(pair => pair._2(pair._1))
+
+        override def pure[A](x: A): Option[A] = Some(x)
+
+        override def foldLeft[A, B](fa: Option[A], b: B)(f: (B, A) => B): B = fa match {
+          case Some(value) => f(b, value)
+          case _           => b
+        }
+
+        override def map[A, B](fa: Option[A])(f: A => B): Option[B] = fa.map(f)
+      }
+
+    implicit val nelInstances: Traverse[NonEmptyList] with Applicative[NonEmptyList] =
+      new Traverse[NonEmptyList] with Applicative[NonEmptyList] {
+        override def traverse[G[_]: Applicative, A, B](fa: NonEmptyList[A])(f: A => G[B]): G[NonEmptyList[B]] = {
+          f(fa.head).aproduct(fa.tail.traverse(f)).map { case (h, t) => NonEmptyList(h, t) }
+        }
+
+        override def ap[A, B](ff: NonEmptyList[A => B])(fa: NonEmptyList[A]): NonEmptyList[B] = {
+          NonEmptyList(ff.head(fa.head), fa.tail.ap(ff.tail))
+        }
+
+        override def pure[A](x: A): NonEmptyList[A] = NonEmptyList[A](x)
+
+        override def foldLeft[A, B](fa: NonEmptyList[A], b: B)(f: (B, A) => B): B = {
+          (fa.head :: fa.tail).foldLeft(b)((acc, next) => f(acc, next))
+        }
+
+        override def map[A, B](fa: NonEmptyList[A])(f: A => B): NonEmptyList[B] = {
+          NonEmptyList(f(fa.head), fa.tail.map(f))
+        }
+      }
+
+    implicit def listMonoid[A] = new Monoid[List[A]] {
+      override def empty: List[A] = List.empty
+
+      override def combine(x: List[A], y: List[A]): List[A] = x.appendedAll(y)
+    }
   }
 }
